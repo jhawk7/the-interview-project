@@ -16,6 +16,10 @@ type AuthHelper struct {
 	env *config.EnvConfig
 }
 
+const (
+	authHeader = "authorization"
+)
+
 func New(env *config.EnvConfig) *AuthHelper {
 	return &AuthHelper{env: env}
 }
@@ -33,16 +37,16 @@ func (a *AuthHelper) ValidateJWT() func(ctx context.Context) (context.Context, e
 			return nil, status.Errorf(codes.Unauthenticated, "invalid auth token: %v", err)
 		}
 
-		ctx = context.WithValue(ctx, "authorization", claims)
-
+		logger.LogInfo("jwt validated")
+		ctx = context.WithValue(ctx, authHeader, claims)
 		return ctx, nil
 	}
 }
 
 func (a *AuthHelper) AuthorizeRequest() func(ctx context.Context) (context.Context, error) {
 	return func(ctx context.Context) (context.Context, error) {
-		authHeader := ctx.Value("authorization")
-		claims, ok := authHeader.(jwtValidator.JWTClaims)
+		authHeader := ctx.Value(authHeader)
+		claims, ok := authHeader.(*jwtValidator.JWTClaims)
 		if !ok {
 			logger.LogError(fmt.Errorf("failed to process claims during authorization; %v", authHeader), false)
 			return nil, status.Error(codes.PermissionDenied, "authorization failed")
@@ -59,6 +63,7 @@ func (a *AuthHelper) AuthorizeRequest() func(ctx context.Context) (context.Conte
 			return nil, status.Error(codes.PermissionDenied, "unauthorized")
 		}
 
+		logger.LogInfo(fmt.Sprintf("authorized api access for user %v", claims.Username))
 		return ctx, nil
 	}
 }
