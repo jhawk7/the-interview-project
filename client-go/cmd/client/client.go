@@ -12,11 +12,11 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func makeAuthCall(c config.GrpcConfig) *grpc.ClientConn {
+func makeAuthCall(env *config.EnvConfig) *grpc.ClientConn {
 	ctx := context.Background()
 	authconn, err := grpc.DialContext(
 		ctx,
-		c.Authserver,
+		env.Authserver,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithBlock(),
 	)
@@ -30,12 +30,11 @@ func makeAuthCall(c config.GrpcConfig) *grpc.ClientConn {
 
 func main() {
 	ctx := context.Background()
-	cfg := config.LoadConfig()
 	env := config.LoadEnv()
 
 	apiconn, err := grpc.DialContext(
 		ctx,
-		cfg.Server,
+		env.Apiserver,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithBlock(),
 	)
@@ -43,9 +42,14 @@ func main() {
 		logger.LogError(errors.Wrap(err, "failed to connect to service"), true)
 	}
 
-	authconn := makeAuthCall(cfg)
-	consumer := consumer.New(apiconn, authconn)
+	authconn := makeAuthCall(env)
+	defer func() {
+		apiconn.Close()
+		authconn.Close()
+	}()
 
+	consumer := consumer.New(apiconn, authconn)
+	logger.LogInfo("authenticating and dialing service")
 	consumer.Authenticate(ctx, env)
 	consumer.HelloWorld(ctx)
 }

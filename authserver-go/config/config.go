@@ -17,6 +17,8 @@ type (
 		JwtSecret  string
 		Username   string
 		Usersecret string
+		Host       string
+		Port       string
 	}
 )
 
@@ -50,9 +52,21 @@ func LoadEnv() *EnvConfig {
 		logger.LogError(fmt.Errorf("failed to read USER_SECRET from environment"), true)
 	}
 
+	host := os.Getenv("HOST")
+	if host == "" {
+		logger.LogError(fmt.Errorf("failed to read HOST from environment"), true)
+	}
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		logger.LogError(fmt.Errorf("failed to read PORT from environment"), true)
+	}
+
 	return &EnvConfig{
 		JwtSecret:  jwtSecret,
 		Username:   username,
 		Usersecret: usersercret,
+		Host:       host,
+		Port:       port,
 	}
 }

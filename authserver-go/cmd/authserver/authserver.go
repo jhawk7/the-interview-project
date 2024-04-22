@@ -17,10 +17,10 @@ const (
 )
 
 func main() {
-	grpcConfig := config.LoadConfigFromFile(configPath)
+	//grpcConfig := config.LoadConfigFromFile(configPath)
 	env := config.LoadEnv()
 
-	address := fmt.Sprintf("%s:%s", grpcConfig.ServerHost, grpcConfig.UnsecurePort)
+	address := fmt.Sprintf("%s:%s", env.Host, env.Port)
 
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
@@ -35,7 +35,7 @@ func main() {
 	auth.RegisterAuthServiceServer(grpcServer, apiserver)
 	reflection.Register(grpcServer)
 
-	logger.LogInfo(fmt.Sprintf("Starting interview service at %s", address))
+	logger.LogInfo(fmt.Sprintf("Starting authserver at %s", address))
 	grpcServer.Serve(lis)
 
 }

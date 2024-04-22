@@ -16,6 +16,8 @@ type (
 	EnvConfig struct {
 		JwtSecret string
 		Admin     string
+		Host      string
+		Port      string
 	}
 )
 
@@ -44,8 +46,20 @@ func LoadEnv() *EnvConfig {
 		logger.LogError(fmt.Errorf("failed to read USER_NAME from environment"), true)
 	}
 
+	host := os.Getenv("HOST")
+	if host == "" {
+		logger.LogError(fmt.Errorf("failed to read HOST from environment"), true)
+	}
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		logger.LogError(fmt.Errorf("failed to read PORT from environment"), true)
+	}
+
 	return &EnvConfig{
 		JwtSecret: jwtSecret,
 		Admin:     username,
+		Host:      host,
+		Port:      port,
 	}
 }

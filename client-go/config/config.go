@@ -14,8 +14,10 @@ type (
 	}
 
 	EnvConfig struct {
-		User string
-		Pass string
+		User       string
+		Pass       string
+		Authserver string
+		Apiserver  string
 	}
 )
 
@@ -47,8 +49,20 @@ func LoadEnv() *EnvConfig {
 		logger.LogError(fmt.Errorf("failed to read PASS from client environment"), true)
 	}
 
+	apiserver := os.Getenv("API_SERVER")
+	if apiserver == "" {
+		logger.LogError(fmt.Errorf("failed to read API_SERVER from environment"), true)
+	}
+
+	authserver := os.Getenv("AUTH_SERVER")
+	if authserver == "" {
+		logger.LogError(fmt.Errorf("failed to read AUTH_SERVER from environment"), true)
+	}
+
 	return &EnvConfig{
-		User: user,
-		Pass: pass,
+		User:       user,
+		Pass:       pass,
+		Authserver: authserver,
+		Apiserver:  apiserver,
 	}
 }

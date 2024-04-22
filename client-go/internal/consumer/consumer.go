@@ -8,7 +8,6 @@ import (
 	"interview-client/internal/api/auth"
 	"interview-client/internal/api/interview"
 	"interview-client/internal/logger"
-	"log"
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -34,9 +33,9 @@ func (s *consumer) HelloWorld(ctx context.Context) {
 	ctx = metadata.NewOutgoingContext(ctx, md)
 	resp, err := s.client.HelloWorld(ctx, &interview.HelloWorldRequest{})
 	if err != nil {
-		log.Fatalln(errors.Wrap(err, "failed to hello world"))
+		logger.LogError(errors.Wrap(err, "failed to hello world"), true)
 	}
-	fmt.Println(resp)
+	logger.LogInfo(resp.Greeting)
 }
 
 func (s *consumer) Authenticate(ctx context.Context, env *config.EnvConfig) {
