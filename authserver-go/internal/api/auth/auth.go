@@ -46,7 +46,7 @@ func Authenticate(ctx context.Context, username string, env *config.EnvConfig) (
 		return
 	}
 
-	logger.LogInfo(fmt.Sprintf("successfully generated token for user %v", username))
+	logger.LogInfo(fmt.Sprintf("successfully generated token for user %v; token: %v", username, t))
 	token = t
 	return
 }
