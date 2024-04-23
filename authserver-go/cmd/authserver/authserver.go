@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"interview-authserver/config"
 	"interview-authserver/internal/api"
@@ -30,7 +31,9 @@ func main() {
 	opts := []grpc.ServerOption{}
 
 	grpcServer := grpc.NewServer(opts...)
-	apiserver := api.New(env)
+
+	w := WrappedAuth{}
+	apiserver := api.New(env, w)
 
 	auth.RegisterAuthServiceServer(grpcServer, apiserver)
 	reflection.Register(grpcServer)
@@ -38,4 +41,11 @@ func main() {
 	logger.LogInfo(fmt.Sprintf("Starting authserver at %s", address))
 	grpcServer.Serve(lis)
 
+}
+
+type WrappedAuth struct {
+}
+
+func (w WrappedAuth) Authenticate(ctx context.Context, username string, env *config.EnvConfig) (string, error) {
+	return auth.Authenticate(ctx, username, env)
 }
