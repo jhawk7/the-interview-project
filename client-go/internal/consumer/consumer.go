@@ -35,6 +35,7 @@ func (s *consumer) HelloWorld(ctx context.Context) {
 	if err != nil {
 		logger.LogError(errors.Wrap(err, "failed to hello world"), true)
 	}
+	fmt.Println(resp.Greeting)
 	logger.LogInfo(resp.Greeting)
 }
 
